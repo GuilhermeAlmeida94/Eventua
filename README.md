@@ -1,0 +1,1 @@
+# Projeto de testes simples do .Net Core 3.1
