@@ -38,5 +38,12 @@ namespace Eventua.API.Controllers
             _context.Eventos.Add(evento);
         await _context.SaveChangesAsync();
         }
+
+        [HttpPut]
+        public async Task Put([FromBody] EventoModel evento)
+        {
+            _context.Eventos.Update(evento);
+        await _context.SaveChangesAsync();
+        }
     }
 }
