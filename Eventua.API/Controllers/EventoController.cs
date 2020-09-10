@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
-using Eventua.API.Data;
-using Eventua.API.Models;
+using Eventua.Domain.Models;
+using Eventua.Repository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -11,9 +11,9 @@ namespace Eventua.API.Controllers
     [Route("[controller]")]
     public class EventoController : ControllerBase
     {
-        private readonly DataContext _context;
+        private readonly EventuaContext _context;
 
-        public EventoController(DataContext context)
+        public EventoController(EventuaContext context)
         {
             this._context = context;
         }
@@ -33,14 +33,14 @@ namespace Eventua.API.Controllers
         }
 
         [HttpPost]
-        public async Task Post([FromBody] EventoModel evento)
+        public async Task Post([FromBody] Evento evento)
         {
             _context.Eventos.Add(evento);
         await _context.SaveChangesAsync();
         }
 
         [HttpPut]
-        public async Task Put([FromBody] EventoModel evento)
+        public async Task Put([FromBody] Evento evento)
         {
             _context.Eventos.Update(evento);
         await _context.SaveChangesAsync();
