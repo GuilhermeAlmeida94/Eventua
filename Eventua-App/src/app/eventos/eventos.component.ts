@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { EventoService } from '../_services/evento.service';
+import { Evento } from '../_models/Evento';
 
 @Component({
   selector: 'app-eventos',
@@ -8,28 +9,28 @@ import { HttpClient } from '@angular/common/http';
 })
 export class EventosComponent implements OnInit {
 
-  eventosFiltrados: any = [];
-   eventos: any = [];
-   imagemLargura = 50;
-   imagemMargem = 2;
-   mostrarImagem = false;
+  eventosFiltrados: Evento[];
+  eventos: Evento[];
+  imagemLargura = 50;
+  imagemMargem = 2;
+  mostrarImagem = false;
 
-   filtro$: string;
-   get filtro(): string{
-     return this.filtro$;
-   }
-   set filtro(value: string){
-     this.filtro$ = value;
-     this.eventosFiltrados = this.filtrarEventos(this.filtro$);
-   }
+  filtro$: string;
+  get filtro(): string{
+    return this.filtro$;
+  }
+  set filtro(value: string){
+    this.filtro$ = value;
+    this.eventosFiltrados = this.filtrarEventos(this.filtro$);
+  }
 
-  constructor(private http: HttpClient) { }
+  constructor(private eventoService: EventoService) { }
 
   ngOnInit(): void {
     this.getEventos();
   }
 
-  filtrarEventos(filtro: string): any{
+  filtrarEventos(filtro: string): Evento[]{
     if (filtro){
       filtro = filtro.toLocaleLowerCase();
       return this.eventos.filter(
@@ -42,11 +43,12 @@ export class EventosComponent implements OnInit {
   }
 
   getEventos(): void {
-    this.eventos = this.http.get('http://localhost:5000/evento').subscribe(
-      response =>  {
-        this.eventos = response;
-      }
-      , error =>  {
+    this.eventoService.getAllEvento().subscribe((evento$: Evento[]) =>  {
+      this.eventos = evento$;
+      this.eventosFiltrados = this.eventos;
+      console.log(evento$);
+    }
+    , error =>  {
         console.log(error);
       }
     );
