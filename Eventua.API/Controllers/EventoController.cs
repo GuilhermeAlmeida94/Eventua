@@ -3,7 +3,6 @@ using Eventua.Domain.Models;
 using Eventua.Repository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace Eventua.API.Controllers
 {
@@ -11,11 +10,11 @@ namespace Eventua.API.Controllers
     [Route("[controller]")]
     public class EventoController : ControllerBase
     {
-        private readonly EventuaContext _context;
+        private readonly IEventuaRepository _repository;
 
-        public EventoController(EventuaContext context)
+        public EventoController(IEventuaRepository repository)
         {
-            this._context = context;
+            this._repository = repository;
         }
 
         [HttpGet]
@@ -23,7 +22,21 @@ namespace Eventua.API.Controllers
         {
             try
             {
-                var results = await _context.Eventos.ToListAsync();
+                var results = await _repository.GetAllEventoAsync(true);
+                return Ok(results);
+            }
+            catch (System.Exception)
+            {
+                return this.StatusCode(StatusCodes.Status500InternalServerError, "Banco de dados falhou");
+            }
+        }
+
+        [HttpGet("eventoId")]
+        public async Task<IActionResult> Get(int eventoId)
+        {
+            try
+            {
+                var results = await _repository.GetEventoAsyncById(eventoId, true);
                 return Ok(results);
             }
             catch (System.Exception)
@@ -33,17 +46,59 @@ namespace Eventua.API.Controllers
         }
 
         [HttpPost]
-        public async Task Post([FromBody] Evento evento)
+        public async Task<IActionResult> Post(Evento evento)
         {
-            _context.Eventos.Add(evento);
-        await _context.SaveChangesAsync();
+            try{
+                _repository.Add(evento);
+
+                if (await _repository.SaveChangesAsync())
+                    return Created($"evento/{evento.Id}", evento);
+            }
+            catch (System.Exception){
+                return this.StatusCode(StatusCodes.Status500InternalServerError, "Banco de dados falhou");
+            }
+
+            return BadRequest();
         }
 
         [HttpPut]
-        public async Task Put([FromBody] Evento evento)
+        public async Task<IActionResult> Put(int eventoId, Evento evento)
         {
-            _context.Eventos.Update(evento);
-        await _context.SaveChangesAsync();
+            try{
+                Evento eventoOld = await _repository.GetEventoAsyncById(eventoId, false);
+                if (eventoOld == null)
+                    return NotFound();
+
+            _repository.Update(evento);
+
+            if (await _repository.SaveChangesAsync())
+                return Created($"evento/{evento.Id}", evento);
+            }
+            catch (System.Exception){
+                return this.StatusCode(StatusCodes.Status500InternalServerError, "Banco de dados falhou");
+            }
+
+            return BadRequest();
         }
+
+        [HttpDelete]
+         public async Task<IActionResult> Delete(int eventoId)
+         {
+             try{
+                 Evento evento = await _repository.GetEventoAsyncById(eventoId, false);
+                 if (evento == null)
+                     return NotFound();
+
+             _repository.Delete(evento);
+
+             if (await _repository.SaveChangesAsync())
+                 return Ok();
+             }
+             catch (System.Exception){
+                 return this.StatusCode(StatusCodes.Status500InternalServerError, "Banco de dados falhou");
+             }
+
+             return BadRequest();
+         }
     }
 }

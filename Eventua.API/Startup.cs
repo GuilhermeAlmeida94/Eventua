@@ -23,6 +23,7 @@ namespace Eventua.API
             services.AddDbContext<EventuaContext>(
                 x => x.UseSqlite(Configuration.GetConnectionString("DefaultConnection"))
             );
+            services.AddScoped<IEventuaRepository, EventuaRepository>();
             services.AddControllers();
             services.AddCors();
         }
