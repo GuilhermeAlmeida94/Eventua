@@ -47,8 +47,11 @@ export class EventosComponent implements OnInit {
     this.eventosFiltrados = this.filtrarEventos(this.filtro$);
   }
 
-  openModal(template: any): void{
+  openModal(template: any, evento: Evento = null): void{
     this.registerForm.reset();
+    if (evento){
+      this.registerForm.setValue(evento);
+    }
     template.show();
   }
 
@@ -82,28 +85,44 @@ export class EventosComponent implements OnInit {
 
   validation(): void {
     this.registerForm = this.fb.group({
+      id: ['', []],
       tema: ['',  [Validators.required, Validators.minLength(4), Validators.maxLength(50)]],
       local: ['', Validators.required],
       dataEvento: ['', Validators.required],
       qtdPessoas: ['', [Validators.required, Validators.max(120000)]],
       imagemURL: ['', Validators.required],
       telefone: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]]
+      email: ['', [Validators.required, Validators.email]],
+      lotes: ['', []],
+      redesSociais: ['', []],
+      palestranteEventos: ['', []]
     });
   }
 
   salvarAlteracao(template: any): void {
     if (this.registerForm.valid) {
       this.evento = Object.assign({}, this.registerForm.value);
-      this.eventoService.postEvento(this.evento).subscribe(
-        (novoEvento: Evento) => {
-          console.log(novoEvento);
-          template.hide();
-          this.getEventos();
-        }, error => {
-          console.log(error);
-        }
-      );
+      if (this.evento.id){
+        this.eventoService.putEvento(this.evento).subscribe(
+          (novoEvento: Evento) => {
+            template.hide();
+            this.getEventos();
+          }, error => {
+            console.log(error);
+          }
+        );
+      }
+      else {
+        this.evento.id = 0;
+        this.eventoService.postEvento(this.evento).subscribe(
+          (novoEvento: Evento) => {
+            template.hide();
+            this.getEventos();
+          }, error => {
+            console.log(error);
+          }
+        );
+      }
     }
   }
 }
