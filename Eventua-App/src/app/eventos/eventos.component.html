@@ -10,7 +10,7 @@
   </div>
 
   <div>
-    <button class="btn btn-outline-primary" (click)="inserirEvento(template)">
+    <button class="btn btn-outline-primary" (click)="inserirEvento(formTemplate)">
       <i class="fa fa-plus-circle"></i>
       Novo Evento
     </button>
@@ -56,11 +56,10 @@
       <td> 
         <div class="btn-group">
           <button class="btn btn-sm btn-success" tooltip="Editar">
-            <i class="fa fa-edit"
-              (click)="editarEvento(template, evento)"></i>
+            <i class="fa fa-edit" (click)="editarEvento(formTemplate, evento)"></i>
           </button>
           <button class="btn btn-sm btn-danger" tooltip="Apagar">
-            <i class="fa fa-eraser"></i>
+            <i class="fa fa-eraser" (click)="apagarEvento(smallTemplate, evento)"></i>
           </button>
         </div>
       </td>
@@ -73,13 +72,13 @@
   </tfoot>
 </table> 
 
-<div bsModal #template="bs-modal" class="modal fade" tabindex="-1"
+<div bsModal #formTemplate="bs-modal" class="modal fade" tabindex="-1"
      role="dialog" aria-labelledby="dialog-sizes-name1">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
         <h4 id="dialog-sizes-name1" class="modal-title pull-left">Evento</h4>
-        <button type="button" class="close pull-right" (click)="template.hide()" aria-label="Close">
+        <button type="button" class="close pull-right" (click)="formTemplate.hide()" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
@@ -183,13 +182,39 @@
         </form>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-secondary" (click)="template.hide()">
+        <button class="btn btn-secondary" (click)="formTemplate.hide()">
           Fechar
         </button>
-        <button class="btn btn-primary ml-auto" [disabled]="registerForm.invalid" (click)="salvarAlteracao(template)">
+        <button class="btn btn-primary ml-auto" [disabled]="registerForm.invalid" (click)="salvarAlteracao(formTemplate)">
           Salvar Alterações
         </button>
       </div>
     </div>
   </div>
+</div>
+
+<div bsModal #smallTemplate="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="dialog-sizes-name1">
+	<div class="modal-dialog modal-sm">
+  		<div class="modal-content">
+    		<div class="modal-header">
+      			<h4 class="modal-title pull-left">
+        			Deletando Evento
+      			</h4>
+      			<button type="button" class="close pull-right" (click)="smallTemplate.hide()" aria-label="Close">
+        			<span aria-hidden="true">&times;</span>
+      			</button>
+    		</div>
+    		<div class="modal-body">
+      			<p>{{bodySmallTemplate}}</p>
+    		</div>    
+    		<div class="modal-footer btn-group d-flex">      
+      			<button type="button" class="btn btn-outline-primary" (click)="smallTemplate.hide()">
+        			CANCELAR
+      			</button>
+      			<button type="button" class="btn btn-outline-danger" (click)="confirmarApagar(smallTemplate)">
+          			DELETAR
+        		</button>
+    		</div>
+  		</div>
+	</div>
 </div>

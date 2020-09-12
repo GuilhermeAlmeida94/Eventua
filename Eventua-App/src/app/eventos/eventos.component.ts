@@ -24,6 +24,7 @@ export class EventosComponent implements OnInit {
   mostrarImagem = false;
   registerForm: FormGroup;
   ehInsersao: boolean;
+  bodySmallTemplate: string;
 
   filtro$: string;
   constructor(
@@ -58,6 +59,12 @@ export class EventosComponent implements OnInit {
     this.ehInsersao = false;
     this.evento = evento;
     this.registerForm.patchValue(this.evento);
+  }
+
+  apagarEvento(template: any, evento: Evento): void {
+    this.openModal(template);
+    this.evento = evento;
+    this.bodySmallTemplate = 'Tem certeza que quer apagar este evento?';
   }
 
   openModal(template: any): void{
@@ -130,5 +137,16 @@ export class EventosComponent implements OnInit {
         );
       }
     }
+  }
+
+  confirmarApagar(template: any): void {
+    this.eventoService.deleteEvento(this.evento.id).subscribe(
+      () => {
+        template.hide();
+        this.getEventos();
+      }, error => {
+        console.log(error);
+      }
+    );
   }
 }

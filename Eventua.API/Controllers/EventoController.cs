@@ -31,7 +31,7 @@ namespace Eventua.API.Controllers
             }
         }
 
-        [HttpGet("eventoId")]
+        [HttpGet("{eventoId}")]
         public async Task<IActionResult> Get(int eventoId)
         {
             try
@@ -81,7 +81,7 @@ namespace Eventua.API.Controllers
             return BadRequest();
         }
 
-        [HttpDelete("eventoId")]
+        [HttpDelete("{eventoId}")]
          public async Task<IActionResult> Delete(int eventoId)
          {
              try{
