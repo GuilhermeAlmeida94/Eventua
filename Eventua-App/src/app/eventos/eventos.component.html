@@ -10,7 +10,7 @@
   </div>
 
   <div>
-    <button class="btn btn-outline-primary" (click)="openModal(template)">
+    <button class="btn btn-outline-primary" (click)="inserirEvento(template)">
       <i class="fa fa-plus-circle"></i>
       Novo Evento
     </button>
@@ -57,7 +57,7 @@
         <div class="btn-group">
           <button class="btn btn-sm btn-success" tooltip="Editar">
             <i class="fa fa-edit"
-              (click)="openModal(template, evento)"></i>
+              (click)="editarEvento(template, evento)"></i>
           </button>
           <button class="btn btn-sm btn-danger" tooltip="Apagar">
             <i class="fa fa-eraser"></i>
@@ -85,7 +85,6 @@
       </div>
       <div class="modal-body">
         <form [formGroup]="registerForm" >
-          <input type="hidden" class="form-control" formControlName="id">
           <div class="form-row">
             <div class="form-group col-md-12">
               <label>Tema</label>

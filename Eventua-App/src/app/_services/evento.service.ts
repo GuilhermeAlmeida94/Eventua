@@ -28,7 +28,7 @@ export class EventoService {
     return this.http.post(this.baseUrl, evento);
   }
 
-  putEvento(evento: Evento): any {
-    return this.http.put(`${this.baseUrl}/${evento.id}`, evento);
+  putEvento(id: number, evento: Evento): any {
+    return this.http.put(`${this.baseUrl}/${id}`, evento);
   }
 }

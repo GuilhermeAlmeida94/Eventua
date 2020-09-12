@@ -23,6 +23,7 @@ export class EventosComponent implements OnInit {
   imagemMargem = 2;
   mostrarImagem = false;
   registerForm: FormGroup;
+  ehInsersao: boolean;
 
   filtro$: string;
   constructor(
@@ -47,11 +48,20 @@ export class EventosComponent implements OnInit {
     this.eventosFiltrados = this.filtrarEventos(this.filtro$);
   }
 
-  openModal(template: any, evento: Evento = null): void{
+  inserirEvento(template: any): void{
+    this.openModal(template);
+    this.ehInsersao = true;
+  }
+
+  editarEvento(template: any, evento: Evento): void {
+    this.openModal(template);
+    this.ehInsersao = false;
+    this.evento = evento;
+    this.registerForm.patchValue(this.evento);
+  }
+
+  openModal(template: any): void{
     this.registerForm.reset();
-    if (evento){
-      this.registerForm.setValue(evento);
-    }
     template.show();
   }
 
@@ -85,25 +95,21 @@ export class EventosComponent implements OnInit {
 
   validation(): void {
     this.registerForm = this.fb.group({
-      id: ['', []],
       tema: ['',  [Validators.required, Validators.minLength(4), Validators.maxLength(50)]],
       local: ['', Validators.required],
       dataEvento: ['', Validators.required],
       qtdPessoas: ['', [Validators.required, Validators.max(120000)]],
       imagemURL: ['', Validators.required],
       telefone: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
-      lotes: ['', []],
-      redesSociais: ['', []],
-      palestranteEventos: ['', []]
+      email: ['', [Validators.required, Validators.email]]
     });
   }
 
   salvarAlteracao(template: any): void {
     if (this.registerForm.valid) {
-      this.evento = Object.assign({}, this.registerForm.value);
-      if (this.evento.id){
-        this.eventoService.putEvento(this.evento).subscribe(
+      if (this.ehInsersao){
+        this.evento = Object.assign({}, this.registerForm.value);
+        this.eventoService.postEvento(this.evento).subscribe(
           (novoEvento: Evento) => {
             template.hide();
             this.getEventos();
@@ -113,8 +119,8 @@ export class EventosComponent implements OnInit {
         );
       }
       else {
-        this.evento.id = 0;
-        this.eventoService.postEvento(this.evento).subscribe(
+        this.evento = Object.assign({id: this.evento.id}, this.registerForm.value);
+        this.eventoService.putEvento(this.evento.id, this.evento).subscribe(
           (novoEvento: Evento) => {
             template.hide();
             this.getEventos();
