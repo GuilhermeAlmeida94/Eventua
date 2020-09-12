@@ -1,8 +1,13 @@
 import { Component, OnInit, TemplateRef } from '@angular/core';
+import { FormGroup, Validators, FormBuilder } from '@angular/forms';
+
 import { EventoService } from '../_services/evento.service';
 import { Evento } from '../_models/Evento';
+
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
-import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
+import { BsLocaleService } from 'ngx-bootstrap/datepicker';
+import { defineLocale, ptBrLocale } from 'ngx-bootstrap/chronos';
+defineLocale('pt-br', ptBrLocale);
 
 @Component({
   selector: 'app-eventos',
@@ -13,18 +18,21 @@ export class EventosComponent implements OnInit {
 
   eventosFiltrados: Evento[];
   eventos: Evento[];
+  evento: Evento;
   imagemLargura = 50;
   imagemMargem = 2;
   mostrarImagem = false;
-  modalRef: BsModalRef;
   registerForm: FormGroup;
 
   filtro$: string;
   constructor(
     private eventoService: EventoService,
     private modalService: BsModalService,
-    private fb: FormBuilder
-  ) { }
+    private fb: FormBuilder,
+    private localeService: BsLocaleService
+  ) {
+    this.localeService.use('pt-br');
+   }
 
   ngOnInit(): void {
     this.validation();
@@ -39,8 +47,9 @@ export class EventosComponent implements OnInit {
     this.eventosFiltrados = this.filtrarEventos(this.filtro$);
   }
 
-  openModalEdit(template: TemplateRef<any>): void{
-    this.modalRef = this.modalService.show(template);
+  openModal(template: any): void{
+    this.registerForm.reset();
+    template.show();
   }
 
   filtrarEventos(filtro: string): Evento[]{
@@ -83,6 +92,18 @@ export class EventosComponent implements OnInit {
     });
   }
 
-  salvarAlteracao(): void {
+  salvarAlteracao(template: any): void {
+    if (this.registerForm.valid) {
+      this.evento = Object.assign({}, this.registerForm.value);
+      this.eventoService.postEvento(this.evento).subscribe(
+        (novoEvento: Evento) => {
+          console.log(novoEvento);
+          template.hide();
+          this.getEventos();
+        }, error => {
+          console.log(error);
+        }
+      );
+    }
   }
 }
