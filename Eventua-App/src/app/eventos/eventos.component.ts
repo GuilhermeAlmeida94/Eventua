@@ -3,8 +3,8 @@ import { FormGroup, Validators, FormBuilder } from '@angular/forms';
 
 import { EventoService } from '../_services/evento.service';
 import { Evento } from '../_models/Evento';
+import { ToastrService } from 'ngx-toastr';
 
-import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { BsLocaleService } from 'ngx-bootstrap/datepicker';
 import { defineLocale, ptBrLocale } from 'ngx-bootstrap/chronos';
 defineLocale('pt-br', ptBrLocale);
@@ -29,9 +29,9 @@ export class EventosComponent implements OnInit {
   filtro$: string;
   constructor(
     private eventoService: EventoService,
-    private modalService: BsModalService,
     private fb: FormBuilder,
-    private localeService: BsLocaleService
+    private localeService: BsLocaleService,
+    private toastr: ToastrService
   ) {
     this.localeService.use('pt-br');
    }
@@ -88,9 +88,9 @@ export class EventosComponent implements OnInit {
     this.eventoService.getAllEvento().subscribe((evento$: Evento[]) =>  {
       this.eventos = evento$;
       this.eventosFiltrados = this.eventos;
-      console.log(evento$);
     }
     , error =>  {
+        this.toastr.error(`Erro ao carregar: ${error}`);
         console.log(error);
       }
     );
@@ -119,8 +119,10 @@ export class EventosComponent implements OnInit {
         this.eventoService.postEvento(this.evento).subscribe(
           (novoEvento: Evento) => {
             template.hide();
+            this.toastr.success('Evento inserido com sucesso.');
             this.getEventos();
           }, error => {
+            this.toastr.error(`Erro ao inserir: ${error}`);
             console.log(error);
           }
         );
@@ -130,8 +132,10 @@ export class EventosComponent implements OnInit {
         this.eventoService.putEvento(this.evento.id, this.evento).subscribe(
           (novoEvento: Evento) => {
             template.hide();
+            this.toastr.success('Evento atualizado com sucesso.');
             this.getEventos();
           }, error => {
+            this.toastr.error(`Erro ao atualizar: ${error}`);
             console.log(error);
           }
         );
@@ -143,8 +147,10 @@ export class EventosComponent implements OnInit {
     this.eventoService.deleteEvento(this.evento.id).subscribe(
       () => {
         template.hide();
+        this.toastr.success('Evento apagado com sucesso.');
         this.getEventos();
       }, error => {
+        this.toastr.error(`Erro ao apagar: ${error}`);
         console.log(error);
       }
     );
