@@ -15,6 +15,6 @@ namespace Eventua.API.DTOs
          public string Email { get; set; }
          public List<LoteDTO> Lotes { get; set; }
          public List<RedeSocialDTO> RedesSociais { get; set; }
-         public List<PalestranteDTO> Palestrante { get; set; }
+         public List<PalestranteDTO> Palestrantes { get; set; }
     }
 }

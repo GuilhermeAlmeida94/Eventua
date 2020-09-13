@@ -1,3 +1,5 @@
+using AutoMapper;
+using Eventua.API.Helpers;
 using Eventua.Repository;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -24,6 +26,7 @@ namespace Eventua.API
                 x => x.UseSqlite(Configuration.GetConnectionString("DefaultConnection"))
             );
             services.AddScoped<IEventuaRepository, EventuaRepository>();
+            services.AddAutoMapper(typeof(AutoMapperProfile));
             services.AddControllers();
             services.AddCors();
         }
