@@ -83,13 +83,14 @@ namespace Eventua.API.Controllers
                 Evento evento = await _repository.GetEventoAsyncById(eventoId, false);
                 if (evento == null) return NotFound();
 
-            _mapper.Map(model, evento);
-            
-            _repository.Update(evento);
+                _mapper.Map(model, evento);
+                
+                _repository.Update(evento);
 
-            if (await _repository.SaveChangesAsync())
+                if (await _repository.SaveChangesAsync()){
                     model = _mapper.Map<EventoDTO>(evento);
                     return Created($"evento/{model.Id}", model);
+                }
             }
             catch (System.Exception){
                 return this.StatusCode(StatusCodes.Status500InternalServerError, "Banco de dados falhou");
