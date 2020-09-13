@@ -45,7 +45,7 @@ namespace Eventua.Repository
                     .Include(e => e.PalestranteEventos)
                     .ThenInclude(pe => pe.Palestrante);
 
-            query = query.OrderBy(e => e.DataEvento);
+            query = query.OrderBy(e => e.Id);
 
             return await query.ToArrayAsync();
         }
@@ -63,7 +63,7 @@ namespace Eventua.Repository
 
             query = query
                 .Where(e => e.Id == eventoId)
-                .OrderBy(e => e.DataEvento);
+                .OrderBy(e => e.Id);
 
             return await query.FirstOrDefaultAsync();
         }

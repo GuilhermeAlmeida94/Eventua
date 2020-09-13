@@ -1,4 +1,7 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using AutoMapper;
+using Eventua.API.DTOs;
 using Eventua.Domain.Models;
 using Eventua.Repository;
 using Microsoft.AspNetCore.Http;
@@ -11,10 +14,12 @@ namespace Eventua.API.Controllers
     public class EventoController : ControllerBase
     {
         private readonly IEventuaRepository _repository;
+        private readonly IMapper _mapper;
 
-        public EventoController(IEventuaRepository repository)
+        public EventoController(IEventuaRepository repository, IMapper mapper)
         {
             this._repository = repository;
+            this._mapper = mapper;
         }
 
         [HttpGet]
@@ -22,7 +27,10 @@ namespace Eventua.API.Controllers
         {
             try
             {
-                var results = await _repository.GetAllEventoAsync(true);
+                var eventos = await _repository.GetAllEventoAsync(true);
+
+                var results = _mapper.Map<IEnumerable<EventoDTO>>(eventos);
+
                 return Ok(results);
             }
             catch (System.Exception)
@@ -36,8 +44,11 @@ namespace Eventua.API.Controllers
         {
             try
             {
-                var results = await _repository.GetEventoAsyncById(eventoId, true);
-                return Ok(results);
+                var evento = await _repository.GetEventoAsyncById(eventoId, true);
+
+                var result =  _mapper.Map<EventoDTO>(evento);
+
+                return Ok(result);
             }
             catch (System.Exception)
             {
@@ -46,13 +57,17 @@ namespace Eventua.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post(Evento evento)
+        public async Task<IActionResult> Post(EventoDTO model)
         {
             try{
+                var evento = _mapper.Map<Evento>(model);
+
                 _repository.Add(evento);
 
-                if (await _repository.SaveChangesAsync())
-                    return Created($"evento/{evento.Id}", evento);
+                if (await _repository.SaveChangesAsync()){
+                    model = _mapper.Map<EventoDTO>(evento);
+                    return Created($"evento/{model.Id}", model);
+                }
             }
             catch (System.Exception){
                 return this.StatusCode(StatusCodes.Status500InternalServerError, "Banco de dados falhou");
@@ -62,17 +77,19 @@ namespace Eventua.API.Controllers
         }
 
         [HttpPut("{eventoId}")]
-        public async Task<IActionResult> Put(int eventoId, Evento evento)
+        public async Task<IActionResult> Put(int eventoId, EventoDTO model)
         {
             try{
-                Evento eventoOld = await _repository.GetEventoAsyncById(eventoId, false);
-                if (eventoOld == null)
-                    return NotFound();
+                Evento evento = await _repository.GetEventoAsyncById(eventoId, false);
+                if (evento == null) return NotFound();
 
+            _mapper.Map(model, evento);
+            
             _repository.Update(evento);
 
             if (await _repository.SaveChangesAsync())
-                return Created($"evento/{evento.Id}", evento);
+                    model = _mapper.Map<EventoDTO>(evento);
+                    return Created($"evento/{model.Id}", model);
             }
             catch (System.Exception){
                 return this.StatusCode(StatusCodes.Status500InternalServerError, "Banco de dados falhou");
