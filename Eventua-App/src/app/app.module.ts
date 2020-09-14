@@ -18,12 +18,18 @@ import { EventosComponent } from './eventos/eventos.component';
 import { NavComponent } from './nav/nav.component';
 
 import { DateTimeFormatPipe } from './_pipe/DateTimeFormat.pipe';
+import { PalestrantesComponent } from './palestrantes/palestrantes.component';
+import { DashboardComponent } from './dashboard/dashboard.component';
+import { ContatosComponent } from './contatos/contatos.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    EventosComponent,
     NavComponent,
+    EventosComponent,
+    PalestrantesComponent,
+    DashboardComponent,
+    ContatosComponent,
     DateTimeFormatPipe
    ],
   imports: [
