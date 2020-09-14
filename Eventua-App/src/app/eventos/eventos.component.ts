@@ -25,6 +25,7 @@ export class EventosComponent implements OnInit {
   registerForm: FormGroup;
   ehInsersao: boolean;
   bodySmallTemplate: string;
+  dataEvento: string;
 
   filtro$: string;
   constructor(
