@@ -6,10 +6,11 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./palestrantes.component.css']
 })
 export class PalestrantesComponent implements OnInit {
+  titulo = 'Palestrantes';
 
   constructor() { }
 
-  ngOnInit() {
+  ngOnInit(): void {
   }
 
 }
