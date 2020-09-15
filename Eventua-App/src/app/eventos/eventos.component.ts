@@ -26,6 +26,7 @@ export class EventosComponent implements OnInit {
   ehInsersao: boolean;
   bodySmallTemplate: string;
   dataEvento: string;
+  file: File;
 
   filtro$: string;
   constructor(
@@ -58,7 +59,8 @@ export class EventosComponent implements OnInit {
   editarEvento(template: any, evento: Evento): void {
     this.openModal(template);
     this.ehInsersao = false;
-    this.evento = evento;
+    this.evento = Object.assign({}, evento);
+    this.evento.imagemURL = '';
     this.registerForm.patchValue(this.evento);
   }
 
@@ -115,8 +117,11 @@ export class EventosComponent implements OnInit {
 
   salvarAlteracao(template: any): void {
     if (this.registerForm.valid) {
+
       if (this.ehInsersao){
         this.evento = Object.assign({}, this.registerForm.value);
+        this.uploadImagem();
+
         this.eventoService.postEvento(this.evento).subscribe(
           (novoEvento: Evento) => {
             template.hide();
@@ -130,6 +135,8 @@ export class EventosComponent implements OnInit {
       }
       else {
         this.evento = Object.assign({id: this.evento.id}, this.registerForm.value);
+        this.uploadImagem();
+
         this.eventoService.putEvento(this.evento.id, this.evento).subscribe(
           (novoEvento: Evento) => {
             template.hide();
@@ -141,6 +148,21 @@ export class EventosComponent implements OnInit {
           }
         );
       }
+    }
+  }
+
+  private uploadImagem(): void {
+    const nomeArquivo = this.evento.imagemURL.split('\\', 3)[2];
+    this.evento.imagemURL = nomeArquivo;
+    this.eventoService.postUpload(this.file, nomeArquivo).subscribe();
+  }
+
+  onFileChange(event): void {
+    const reader = new FileReader();
+
+    if (event.target.files && event.target.files.length){
+      this.file = event.target.files;
+      console.log(this.file);
     }
   }
 
