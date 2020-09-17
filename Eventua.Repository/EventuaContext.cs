@@ -1,9 +1,14 @@
+using Eventua.Domain.Identity;
 using Eventua.Domain.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
  
  namespace Eventua.Repository
 {
-     public class EventuaContext : DbContext
+     public class EventuaContext : IdentityDbContext<User, Role, int,
+                                                    IdentityUserClaim<int>, UserRole, IdentityUserLogin<int>,
+                                                    IdentityRoleClaim<int>, IdentityUserToken<int>>
      {
          public EventuaContext(DbContextOptions<EventuaContext> options) : base (options) {}
          public DbSet<Evento> Eventos { get; set; }
@@ -14,8 +19,22 @@ using Microsoft.EntityFrameworkCore;
 
          protected override void OnModelCreating(ModelBuilder modelBuilder)
          {
-             modelBuilder.Entity<PalestranteEvento>()
-                 .HasKey(pe => new { pe.EventoId, pe.PalestranteId });
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<UserRole>(userRole => {
+                userRole.HasKey(ur => new { ur.UserId, ur.RoleId});
+                userRole.HasOne(ur => ur.Role)
+                        .WithMany(r => r.UserRoles)
+                        .HasForeignKey(ur => ur.RoleId)
+                        .IsRequired();
+                userRole.HasOne(ur => ur.User)
+                        .WithMany(r => r.UserRoles)
+                        .HasForeignKey(ur => ur.UserId)
+                        .IsRequired();
+            });
+
+            modelBuilder.Entity<PalestranteEvento>()
+                .HasKey(pe => new { pe.EventoId, pe.PalestranteId });
          }
      }
 }

@@ -1,6 +1,7 @@
 using System.Linq;
 using AutoMapper;
 using Eventua.API.DTOs;
+using Eventua.Domain.Identity;
 using Eventua.Domain.Models;
 
 namespace Eventua.API.Helpers
@@ -24,6 +25,9 @@ namespace Eventua.API.Helpers
             CreateMap<Lote, LoteDTO>().ReverseMap();
 
             CreateMap<RedeSocial, RedeSocialDTO>().ReverseMap();
+
+            CreateMap<User, UserDTO>().ReverseMap();
+            CreateMap<User, UserLoginDTO>().ReverseMap();
         }
         
     }
