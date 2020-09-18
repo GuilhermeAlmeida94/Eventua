@@ -4,14 +4,23 @@ import { EventosComponent } from './eventos/eventos.component';
 import { ContatosComponent } from './contatos/contatos.component';
 import { PalestrantesComponent } from './palestrantes/palestrantes.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
+import { UserComponent } from './user/user.component';
+import { LoginComponent } from './user/login/login.component';
+import { RegistrationComponent } from './user/registration/registration.component';
 
 const routes: Routes = [
-  {path: 'eventos', component: EventosComponent},
-  {path: 'contatos', component: ContatosComponent},
-  {path: 'palestrantes', component: PalestrantesComponent},
-  {path: 'dashboard', component: DashboardComponent},
-  {path: '', redirectTo: 'dashboard', pathMatch: 'full'},
-  {path: '**', redirectTo: 'dashboard', pathMatch: 'full'},
+  { path: 'user', component: UserComponent,
+    children: [
+      { path: 'login', component: LoginComponent },
+      { path: 'registration', component: RegistrationComponent }
+    ]
+  },
+  { path: 'eventos', component: EventosComponent },
+  { path: 'contatos', component: ContatosComponent },
+  { path: 'palestrantes', component: PalestrantesComponent },
+  { path: 'dashboard', component: DashboardComponent },
+  { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+  { path: '**', redirectTo: 'dashboard', pathMatch: 'full' },
 ];
 
 @NgModule({
