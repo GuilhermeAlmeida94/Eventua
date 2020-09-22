@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { BsLocaleService } from 'ngx-bootstrap/datepicker';
 import { ToastrService } from 'ngx-toastr';
 import { Evento } from 'src/app/_models/Evento';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-evento-edit',
@@ -16,6 +17,9 @@ export class EventoEditComponent implements OnInit {
   evento: Evento = new Evento();
   dataEvento: string;
   imagemURL = 'assets/img/upload.jpg';
+  fileNameToUpdate: string;
+  file: File;
+  dataAtual = '';
 
   get lotes(): FormArray {
     return this.registerForm.get('lotes') as FormArray;
@@ -29,15 +33,39 @@ export class EventoEditComponent implements OnInit {
     private eventoService: EventoService,
     private fb: FormBuilder,
     private localeService: BsLocaleService,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private router: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
     this.validation();
+    this.carregarEvento();
+  }
+
+  carregarEvento(): void {
+    const idEvento = +this.router.snapshot.paramMap.get('id');
+    this.eventoService.getEventoById(idEvento).subscribe(
+      (evento: Evento) => {
+        this.evento = Object.assign({}, evento);
+        this.fileNameToUpdate = evento.imagemURL.toString();
+        this.imagemURL = `http://localhost:5000/resources/images/${this.evento.imagemURL}?_ts=${this.dataAtual}`;
+        this.evento.imagemURL = '';
+        this.registerForm.patchValue(this.evento);
+
+        this.evento.lotes.forEach(lote => {
+          this.lotes.push(this.criarLote(lote));
+        });
+        this.evento.redesSociais.forEach(redeSocial => {
+          this.redesSociais.push(this.criarRedeSocial(redeSocial));
+        });
+      },
+      erro => {}
+    );
   }
 
   validation(): void {
     this.registerForm = this.fb.group({
+      id: [],
       tema: ['',  [Validators.required, Validators.minLength(4), Validators.maxLength(50)]],
       local: ['', Validators.required],
       dataEvento: ['', Validators.required],
@@ -45,34 +73,36 @@ export class EventoEditComponent implements OnInit {
       imagemURL: [''],
       telefone: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
-      lotes: this.fb.array([this.criarLote()]),
-      redesSociais: this.fb.array([this.criarRedeSocial()])
+      lotes: this.fb.array([]),
+      redesSociais: this.fb.array([])
     });
   }
 
-  criarLote(): FormGroup {
+  criarLote(lote: any): FormGroup {
     return this.fb.group({
-      nome : ['', Validators.required],
-      quantidade : ['', Validators.required],
-      preco : ['', Validators.required],
-      dataInicio : [''],
-      dataFim : ['']
+      id: [lote.id],
+      nome: [lote.nome, Validators.required],
+      quantidade: [lote.quantidade, Validators.required],
+      preco: [lote.preco, Validators.required],
+      dataInicio: [lote.dataInicio],
+      dataFim: [lote.dataFim]
     });
   }
 
-  criarRedeSocial(): FormGroup {
+  criarRedeSocial(redeSocial: any): FormGroup {
     return this.fb.group({
-      nome : ['', Validators.required],
-      url : ['', Validators.required]
+      id: [redeSocial.id],
+      nome: [redeSocial.nome, Validators.required],
+      url: [redeSocial.url, Validators.required]
     });
   }
 
   adicionarLote(): void {
-    this.lotes.push(this.criarLote());
+    this.lotes.push(this.criarLote({ id: 0}));
   }
 
   adicionarRedeSocial(): void {
-    this.redesSociais.push(this.criarRedeSocial());
+    this.redesSociais.push(this.criarRedeSocial({ id: 0}));
   }
 
   removerLote(id: number): void {
@@ -86,6 +116,37 @@ export class EventoEditComponent implements OnInit {
   onFileChange(file: FileList): void {
     const reader = new FileReader();
     reader.onload = (event: any) => this.imagemURL = event.target.result;
+
+    this.file = file[0];
+
     reader.readAsDataURL(file[0]);
+  }
+
+  salvarEvento(): void {
+    this.evento = Object.assign({id: this.evento.id}, this.registerForm.value);
+    this.evento.imagemURL = this.fileNameToUpdate;
+
+    this.uploadImagem();
+
+    this.eventoService.putEvento(this.evento.id, this.evento).subscribe(
+      () => {
+        this.toastr.success('Evento atualizado com sucesso.');
+      }, error => {
+        this.toastr.error(`Erro ao atualizar: ${error}`);
+        console.log(error);
+      }
+    );
+  }
+
+  private uploadImagem(): void {
+    if (this.registerForm.get('imagemURL').value !== '') {
+      this.eventoService.postUpload(this.file, this.fileNameToUpdate)
+        .subscribe(
+          () => {
+            this.dataAtual = new Date().getMilliseconds().toString();
+            this.imagemURL = `http://localhost:5000/resources/images/${this.evento.imagemURL}?_ts=${this.dataAtual}`;
+          }
+        );
+    }
   }
 }
