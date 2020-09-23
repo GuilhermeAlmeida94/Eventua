@@ -220,8 +220,10 @@
           <div class="row">
             <div class="icon-block col-md-8 iconesSociais">
               <a class="mr-3"
+                *ngFor="let redeSocial of redesSociais.controls; let i=index;"
+                href="{{redesSociais.get(i+'.url').value}}"
                 target="_blank">
-                <i class="fab fa-youtube"></i>
+                <i class="{{redesSociais.get(i+'.nome').value}}"></i>
               </a>
             </div>
             <!--div class="col-md-4 d-flex justify-content-center">  
