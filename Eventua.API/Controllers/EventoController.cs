@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -111,8 +112,24 @@ namespace Eventua.API.Controllers
         public async Task<IActionResult> Put(int eventoId, EventoDTO model)
         {
             try{
+                var idLotes = new List<int>();
+                model.Lotes.ForEach(lote => idLotes.Add(lote.Id));
+
+                var idRedesSociais = new List<int>();
+                model.RedesSociais.ForEach(redeSocial => idRedesSociais.Add(redeSocial.Id));
+
                 Evento evento = await _repository.GetEventoAsyncById(eventoId, false);
                 if (evento == null) return NotFound();
+
+                var lotesFaltantes = evento.Lotes
+                    .Where(lote => !idLotes.Contains(lote.Id)).ToArray();
+                if (lotesFaltantes.Count() > 0)
+                    _repository.DeleteRange(lotesFaltantes);
+
+                var redesSociaisFaltantes = evento.RedesSociais
+                    .Where(redeSocial => !idRedesSociais.Contains(redeSocial.Id)).ToArray();
+                if (redesSociaisFaltantes.Count() > 0)
+                    _repository.DeleteRange(redesSociaisFaltantes);
 
                 _mapper.Map(model, evento);
                 
