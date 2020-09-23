@@ -30,4 +30,8 @@ export class NavComponent implements OnInit {
   login(): void {
     this.router.navigate(['/user/login']);
   }
+
+  userName(): string {
+    return sessionStorage.getItem('username');
+  }
 }
