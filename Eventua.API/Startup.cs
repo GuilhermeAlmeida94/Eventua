@@ -17,6 +17,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 
 namespace Eventua.API
 {
@@ -32,6 +33,10 @@ namespace Eventua.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddSwaggerGen(c =>
+                c.SwaggerDoc("v1", new OpenApiInfo{Title = "Eventua", Version = "v1"})
+            );
+            
             services.AddDbContext<EventuaContext>(
                 x => x.UseSqlite(Configuration.GetConnectionString("DefaultConnection"))
             );
@@ -84,6 +89,11 @@ namespace Eventua.API
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Eventua API")
+            );
 
             app.UseHttpsRedirection();
 
